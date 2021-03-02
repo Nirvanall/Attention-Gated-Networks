@@ -31,7 +31,7 @@ def validation(json_name):
     dataset_transform = get_dataset_transformation(train_opts.arch_type, opts=json_opts.augmentation)
 
     # Setup Data Loader
-    dataset = dataset_class(dataset_path, split='validation', transform=dataset_transform['valid'])
+    dataset = dataset_class(dataset_path, split='test', transform=dataset_transform['test'])
     data_loader = DataLoader(dataset=dataset, num_workers=8, batch_size=1, shuffle=False)
 
     # Visualisation Parameters
@@ -50,9 +50,10 @@ def validation(json_name):
         output_arr = np.squeeze(model.pred_seg.cpu().byte().numpy()).astype(np.int16)
 
         # If there is a label image - compute statistics
-        dice_vals = dice_score(label_arr, output_arr, n_class=int(4))
-        md, hd = distance_metric(label_arr, output_arr, dx=2.00, k=2)
-        precision, recall = precision_and_recall(label_arr, output_arr, n_class=int(4))
+        dice_vals = dice_score(label_arr, output_arr, n_class=int(2))
+        #md, hd = distance_metric(label_arr, output_arr, dx=2.00, k=2)
+        precision, recall = precision_and_recall(label_arr, output_arr, n_class=int(2))
+        '''
         stat_logger.update(split='test', input_dict={'img_name': '',
                                                      'dice_LV': dice_vals[1],
                                                      'dice_MY': dice_vals[2],
@@ -62,15 +63,23 @@ def validation(json_name):
                                                      'md_MYO': md,
                                                      'hd_MYO': hd
                                                       })
-
+        '''
+        stat_logger.update(split='test', input_dict={'img_name': '',
+                                                     'dice_1': dice_vals[0],
+                                                     'dice_2': dice_vals[1],
+                                                     'prec_1': precision[0],
+                                                     'prec_2': precision[1],
+                                                     'reca_1': recall[0],
+                                                     'reca_2': recall[1]
+                                                      })
         # Write a nifti image
         import SimpleITK as sitk
         input_img = sitk.GetImageFromArray(np.transpose(input_arr, (2, 1, 0))); input_img.SetDirection([-1,0,0,0,-1,0,0,0,1])
         label_img = sitk.GetImageFromArray(np.transpose(label_arr, (2, 1, 0))); label_img.SetDirection([-1,0,0,0,-1,0,0,0,1])
         predi_img = sitk.GetImageFromArray(np.transpose(output_arr,(2, 1, 0))); predi_img.SetDirection([-1,0,0,0,-1,0,0,0,1])
 
-        sitk.WriteImage(input_img, os.path.join(save_directory,'{}_img.nii.gz'.format(iteration)))
-        sitk.WriteImage(label_img, os.path.join(save_directory,'{}_lbl.nii.gz'.format(iteration)))
+        #sitk.WriteImage(input_img, os.path.join(save_directory,'{}_img.nii.gz'.format(iteration)))
+        #sitk.WriteImage(label_img, os.path.join(save_directory,'{}_lbl.nii.gz'.format(iteration)))
         sitk.WriteImage(predi_img, os.path.join(save_directory,'{}_pred.nii.gz'.format(iteration)))
 
     stat_logger.statlogger2csv(split='test', out_csv_name=os.path.join(save_directory,'stats.csv'))

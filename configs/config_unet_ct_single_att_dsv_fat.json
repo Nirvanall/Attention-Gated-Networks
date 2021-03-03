@@ -43,8 +43,8 @@
     "feature_scale": 4,
     "gpu_ids": [0],
     "isTrain": true,
-    "checkpoints_dir": "./checkpoints",
-    "experiment_name": "experiment_unet_ct_single_att_dsv",
+    "checkpoints_dir": "/home/liul1/fat_nii/checkpoints",
+    "experiment_name": "experiment_unet_ct_single_att_dsv_fat",
     "criterion": "dice_loss"
   }
 }

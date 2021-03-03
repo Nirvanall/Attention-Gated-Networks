@@ -8,8 +8,8 @@ class Transformations:
         self.name = name
 
         # Input patch and scale size
-        self.scale_size = (192, 192, 1)
-        self.patch_size = (128, 128, 1)
+        self.scale_size = (96, 96, 1)
+        self.patch_size = (64, 64, 1)
         # self.patch_size = (208, 272, 1)
 
         # Affine and Intensity Transformations

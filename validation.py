@@ -7,7 +7,7 @@ from utils.util import json_file_to_pyobj
 from models import get_model
 import numpy as np
 import os
-from utils.metrics import dice_score, distance_metric, precision_and_recall
+from utils.metrics import dice_score, distance_metric, precision_and_recall, mean_IoU, sensitivity
 from utils.error_logger import StatLogger
 
 
@@ -31,7 +31,7 @@ def validation(json_name):
     dataset_transform = get_dataset_transformation(train_opts.arch_type, opts=json_opts.augmentation)
 
     # Setup Data Loader
-    dataset = dataset_class(dataset_path, split='test', transform=dataset_transform['test'])
+    dataset = dataset_class(dataset_path, split='test', transform=dataset_transform['valid'])
     data_loader = DataLoader(dataset=dataset, num_workers=8, batch_size=1, shuffle=False)
 
     # Visualisation Parameters
@@ -42,17 +42,23 @@ def validation(json_name):
 
     # test
     for iteration, data in enumerate(data_loader, 1):
+        
         model.set_input(data[0], data[1])
         model.test()
+        
 
         input_arr  = np.squeeze(data[0].cpu().numpy()).astype(np.float32)
+        
         label_arr  = np.squeeze(data[1].cpu().numpy()).astype(np.int16)
         output_arr = np.squeeze(model.pred_seg.cpu().byte().numpy()).astype(np.int16)
 
         # If there is a label image - compute statistics
         dice_vals = dice_score(label_arr, output_arr, n_class=int(2))
         #md, hd = distance_metric(label_arr, output_arr, dx=2.00, k=2)
-        precision, recall = precision_and_recall(label_arr, output_arr, n_class=int(2))
+        #precision, recall = precision_and_recall(label_arr, output_arr, n_class=int(2))
+        meaniou = mean_IoU(label_arr, output_arr, n_class=int(2))
+        sensitivitys = sensitivity(label_arr, output_arr, n_class=int(2))
+        
         '''
         stat_logger.update(split='test', input_dict={'img_name': '',
                                                      'dice_LV': dice_vals[1],
@@ -64,28 +70,29 @@ def validation(json_name):
                                                      'hd_MYO': hd
                                                       })
         '''
+        
         stat_logger.update(split='test', input_dict={'img_name': '',
-                                                     'dice_1': dice_vals[0],
-                                                     'dice_2': dice_vals[1],
-                                                     'prec_1': precision[0],
-                                                     'prec_2': precision[1],
-                                                     'reca_1': recall[0],
-                                                     'reca_2': recall[1]
+                                                     'dice_bk': dice_vals[0],
+                                                     'dice_per': dice_vals[1],
+                                                     'mIoU_per': meaniou[1],
+                                                     'sensitivity_per': sensitivitys[1],
+                                                     'specificity_per': sensitivitys[0]
                                                       })
+        
         # Write a nifti image
         import SimpleITK as sitk
         input_img = sitk.GetImageFromArray(np.transpose(input_arr, (2, 1, 0))); input_img.SetDirection([-1,0,0,0,-1,0,0,0,1])
         label_img = sitk.GetImageFromArray(np.transpose(label_arr, (2, 1, 0))); label_img.SetDirection([-1,0,0,0,-1,0,0,0,1])
         predi_img = sitk.GetImageFromArray(np.transpose(output_arr,(2, 1, 0))); predi_img.SetDirection([-1,0,0,0,-1,0,0,0,1])
 
-        #sitk.WriteImage(input_img, os.path.join(save_directory,'{}_img.nii.gz'.format(iteration)))
-        #sitk.WriteImage(label_img, os.path.join(save_directory,'{}_lbl.nii.gz'.format(iteration)))
+        sitk.WriteImage(input_img, os.path.join(save_directory,'{}_img.nii.gz'.format(iteration)))
+        sitk.WriteImage(label_img, os.path.join(save_directory,'{}_lbl.nii.gz'.format(iteration)))
         sitk.WriteImage(predi_img, os.path.join(save_directory,'{}_pred.nii.gz'.format(iteration)))
-
+    
     stat_logger.statlogger2csv(split='test', out_csv_name=os.path.join(save_directory,'stats.csv'))
     for key, (mean_val, std_val) in stat_logger.get_errors(split='test').items():
         print('-',key,': \t{0:.3f}+-{1:.3f}'.format(mean_val, std_val),'-')
-
+    
 
 if __name__ == '__main__':
     import argparse

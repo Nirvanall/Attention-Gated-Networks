@@ -4,7 +4,7 @@ import os
 from utils.util import mkdir
 
 def is_image_file(filename):
-    return any(filename.endswith(extension) for extension in [".nii"])
+    return any(filename.endswith(extension) for extension in [".nii.gz"])
 
 
 def load_nifti_img(filepath, dtype):

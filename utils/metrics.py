@@ -77,8 +77,44 @@ def dice_score(label_gt, label_pred, n_class):
         dice_scores[class_id] = score
 
     return dice_scores
+def mean_IoU(label_gt, label_pred, n_class):
+    """
 
+    :param label_gt:
+    :param label_pred:
+    :param n_class:
+    :return:
+    """
 
+    epsilon = 1.0e-6
+    assert np.all(label_gt.shape == label_pred.shape)
+    meanIoU = np.zeros(n_class, dtype=np.float32)
+    for class_id in range(n_class):
+        img_A = np.array(label_gt == class_id, dtype=np.float32).flatten()
+        img_B = np.array(label_pred == class_id, dtype=np.float32).flatten()
+        score = np.sum(img_A * img_B) / (np.sum(img_A) + np.sum(img_B) - np.sum(img_A * img_B) + epsilon)
+        meanIoU[class_id] = score
+    return meanIoU
+    
+def sensitivity(label_gt, label_pred, n_class):
+    """
+
+    :param label_gt:
+    :param label_pred:
+    :param n_class:
+    :return:
+    """
+
+    epsilon = 1.0e-6
+    assert np.all(label_gt.shape == label_pred.shape)
+    sensitivitys = np.zeros(n_class, dtype=np.float32)
+    for class_id in range(n_class):
+        img_A = np.array(label_gt == class_id, dtype=np.float32).flatten()
+        img_B = np.array(label_pred == class_id, dtype=np.float32).flatten()
+        score = np.sum(img_A * img_B) / (np.sum(img_A) + epsilon)
+        sensitivitys[class_id] = score
+    return sensitivitys
+    
 def precision_and_recall(label_gt, label_pred, n_class):
     from sklearn.metrics import precision_score, recall_score
     assert len(label_gt) == len(label_pred)

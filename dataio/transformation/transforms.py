@@ -8,8 +8,8 @@ class Transformations:
         self.name = name
 
         # Input patch and scale size
-        self.scale_size = (96, 96, 1)
-        self.patch_size = (64, 64, 1)
+        self.scale_size = (192, 192, 1)
+        self.patch_size = (128, 128, 1)
         # self.patch_size = (208, 272, 1)
 
         # Affine and Intensity Transformations
@@ -102,8 +102,15 @@ class Transformations:
                                       ts.SpecialCrop(size=self.patch_size, crop_type=0),
                                       ts.TypeCast(['float', 'long'])
                                 ])
+        image_transform = ts.Compose([ts.PadNumpy(size=self.scale_size),
+                                      ts.ToTensor(),
+                                      ts.ChannelsFirst(),
+                                      ts.ChannelsLast(),
+                                      ts.AddChannel(axis=0),
+                                      ts.SpecialCrop(size=self.patch_size, crop_type=0)
+                                ])
 
-        return {'train': train_transform, 'valid': valid_transform}
+        return {'train': train_transform, 'valid': valid_transform, 'image': image_transform}
 
     def hms_sax_transform(self):
 

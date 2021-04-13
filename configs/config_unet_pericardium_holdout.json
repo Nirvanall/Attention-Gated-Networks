@@ -9,14 +9,14 @@
     "preloadData": true
   },
   "visualisation":{
-    "display_port": 8099,
+    "display_port": 8098,
     "no_html": true,
     "display_winsize": 256,
     "display_id": 0,
     "display_single_pane_ncols": 0
   },
   "data_path": {
-    "acdc_sax": "/home/liul1/Fat_nii_down"
+    "acdc_sax": "/home/liul1/Fat_nii_down/"
   },
   "augmentation": {
     "acdc_sax": {
@@ -25,28 +25,27 @@
       "scale": [0.7,1.3],
       "intensity": [1.0,1.0],
       "random_flip_prob": 0.5,
-      "scale_size": [160,160,96],
-      "patch_size": [160,160,96]
+      "scale_size": [256,256,96],
+      "patch_size": [256,256,96]
     }
   },
   "model":{
     "type":"seg",
     "continue_train": false,
-    "which_epoch": 980,
-    "model_type": "unet_ct_single_att_dsv",
+    "which_epoch": -1,
+    "model_type": "unet",
     "tensor_dim": "3D",
     "division_factor": 16,
     "input_nc": 1,
-    "output_nc": 2,
+    "output_nc": 4,
     "lr_rate": 1e-4,
     "l2_reg_weight": 1e-6,
     "feature_scale": 4,
     "gpu_ids": [0],
-    "isTrain": false,
-    "checkpoints_dir": "/home/liul1/Fat_nii_down/checkpoints",
-    "experiment_name": "experiment_unet_ct_single_att_dsv_fatonly",
-    "criterion": "dice_loss",
-    "save_dir": "/home/liu1/Fat_nii_down/checkpoints/experiment_unet_ct_single_att_dsv_fatonly"
+    "isTrain": true,
+    "checkpoints_dir": "/home/liul1/Fat_nii_down/checkpoints_3dunet",
+    "experiment_name": "experiment_3dunet_pericardium_holdout",
+    "criterion": "dice_loss"
   }
 }
 

@@ -3,11 +3,13 @@ from .unet_3D import *
 from .unet_nonlocal_2D import *
 from .unet_nonlocal_3D import *
 from .unet_grid_attention_3D import *
+from .unet_grid_attention_dsv_3D import *
 from .unet_CT_dsv_3D import *
 from .unet_CT_single_att_dsv_3D import *
 from .unet_CT_multi_att_dsv_3D import *
 from .sononet import *
 from .sononet_grid_attention import *
+
 
 def get_network(name, n_classes, in_channels=3, feature_scale=4, tensor_dim='2D',
                 nonlocal_mode='embedded_gaussian', attention_dsample=(2,2,2),
@@ -28,6 +30,7 @@ def get_network(name, n_classes, in_channels=3, feature_scale=4, tensor_dim='2D'
                       nonlocal_mode=nonlocal_mode,
                       feature_scale=feature_scale)
     elif name in ['unet_grid_gating',
+                  'unet_grid_gating_dsv',
                   'unet_ct_single_att_dsv',
                   'unet_ct_multi_att_dsv']:
         model = model(n_classes=n_classes,
@@ -60,6 +63,7 @@ def _get_model_instance(name, tensor_dim):
         'unet':{'2D': unet_2D, '3D': unet_3D},
         'unet_nonlocal':{'2D': unet_nonlocal_2D, '3D': unet_nonlocal_3D},
         'unet_grid_gating': {'3D': unet_grid_attention_3D},
+        'unet_grid_gating_dsv': {'3D': unet_grid_attention_dsv_3D},
         'unet_ct_dsv': {'3D': unet_CT_dsv_3D},
         'unet_ct_single_att_dsv': {'3D': unet_CT_single_att_dsv_3D},
         'unet_ct_multi_att_dsv': {'3D': unet_CT_multi_att_dsv_3D},

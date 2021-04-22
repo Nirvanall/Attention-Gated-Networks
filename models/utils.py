@@ -5,7 +5,7 @@ Misc Utility functions
 import os
 import numpy as np
 import torch.optim as optim
-from torch.nn import CrossEntropyLoss
+from torch.nn import CrossEntropyLoss, BCELoss
 from utils.metrics import segmentation_scores, dice_score_list
 from sklearn import metrics
 from .layers.loss import *
@@ -38,6 +38,8 @@ def get_criterion(opts):
         criterion = SoftDiceLoss(opts.output_nc)
     elif opts.criterion == 'dice_loss_pancreas_only':
         criterion = CustomSoftDiceLoss(opts.output_nc, class_ids=[0, 2])
+    elif opts.criterion == 'bce_dice_loss':
+        criterion = SoftDiceLoss(opts.output_nc) + BCELoss()
 
     return criterion
 

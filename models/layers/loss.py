@@ -46,7 +46,7 @@ class SoftDiceLoss(nn.Module):
         score = 1.0 - score / (float(batch_size) * float(self.n_classes))
 
         return score
-
+ 
 
 class CustomSoftDiceLoss(nn.Module):
     def __init__(self, n_classes, class_ids):

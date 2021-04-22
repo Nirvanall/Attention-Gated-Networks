@@ -39,7 +39,7 @@ def get_criterion(opts):
     elif opts.criterion == 'dice_loss_pancreas_only':
         criterion = CustomSoftDiceLoss(opts.output_nc, class_ids=[0, 2])
     elif opts.criterion == 'bce_dice_loss':
-        criterion = SoftDiceLoss(opts.output_nc) + BCELoss()
+        criterion = SoftDiceLoss(opts.output_nc) + 0.5*BCELoss()
 
     return criterion
 
